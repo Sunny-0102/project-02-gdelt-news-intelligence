@@ -72,3 +72,13 @@ The model flags unusual country-days using rolling z-score features and Isolatio
 
 ### Ranked anomalies (top 50)
 - CSV: `reports/anomalies/top_50_country_day_anomalies.csv`
+
+## Workbook
+- File: `gdelt_global_pulse.twb`
+- BigQuery table: `gen-lang-client-0366281238.gdelt_portfolio.events_daily_clean`
+
+## Refresh
+Open the workbook and refresh the data source. If the table is overwritten by the pipeline, the schema stays stable and refresh works.
+
+## Tableau dashboard
+![GDELT Global Pulse](tableau/screenshots/gdelt_global_pulse.png)
