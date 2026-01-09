@@ -1,0 +1,26 @@
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Local data extracts (keep out of git; these can be large)
+data/extracts/*
+data/interim/*
+data/processed/*
+!data/extracts/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+
+# Models (keep out of git; can be large)
+models/*
+!models/.gitkeep
+
+# Logs
+*.log
