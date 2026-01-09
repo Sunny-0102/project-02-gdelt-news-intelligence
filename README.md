@@ -26,7 +26,6 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 Authentication (BigQuery)
-bash
 Copy code
 gcloud auth login
 gcloud auth application-default login
