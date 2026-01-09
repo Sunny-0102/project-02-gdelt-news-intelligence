@@ -26,15 +26,15 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 Authentication (BigQuery)
-Copy code
+
 gcloud auth login
 gcloud auth application-default login
 gcloud config set project gen-lang-client-0366281238
 gcloud auth application-default set-quota-project gen-lang-client-0366281238
 gcloud services enable bigquery.googleapis.com
 Pipeline (run in order)
-bash
-Copy code
+
+
 python src/bq_smoke_test.py
 python src/extract_events_daily.py
 python src/clean_events_daily.py
