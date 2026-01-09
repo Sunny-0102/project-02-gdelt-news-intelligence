@@ -20,11 +20,7 @@ All BigQuery queries in this repo filter `_PARTITIONTIME` with constant timestam
 - `data/extracts/` local BigQuery extracts (ignored by git)
 - `data/processed/` cleaned outputs (ignored by git)
 
-## Setup (macOS)
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+
 Authentication (BigQuery)
 
 gcloud auth login
@@ -82,4 +78,8 @@ Open the workbook and refresh the data source. If the table is overwritten by th
 ## Tableau dashboard
 ![GDELT Global Pulse](tableau/screenshots/gdelt_global_pulse.png)
 
+## Setup (macOS)
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
