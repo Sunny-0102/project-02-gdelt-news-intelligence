@@ -62,3 +62,13 @@ Tableau deliverables will be stored under tableau/ with connection/refresh notes
 
 ### Tone by Event Root Category
 ![Tone by Category](reports/figures/06_tone_by_root_category_boxplot.png)
+
+## Anomaly detection (country-day)
+
+The model flags unusual country-days using rolling z-score features and Isolation Forest.
+
+### Example: anomalies for the highest-activity country in this window
+![Anomaly plot](reports/figures/07_anomalies_top_country_eventcount.png)
+
+### Ranked anomalies (top 50)
+- CSV: `reports/anomalies/top_50_country_day_anomalies.csv`
