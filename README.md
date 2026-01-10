@@ -23,19 +23,19 @@ All BigQuery queries in this repo filter `_PARTITIONTIME` with constant timestam
 
 ## Authentication (BigQuery)
 
-gcloud auth login
-gcloud auth application-default login
-gcloud config set project gen-lang-client-0366281238
-gcloud auth application-default set-quota-project gen-lang-client-0366281238
-gcloud services enable bigquery.googleapis.com
+- gcloud auth login
+- gcloud auth application-default login
+- gcloud config set project gen-lang-client-0366281238
+- gcloud auth application-default set-quota-project gen-lang-client-0366281238
+- gcloud services enable bigquery.googleapis.com
 
 ## Pipeline (run in order)
-python src/bq_smoke_test.py
-python src/extract_events_daily.py
-python src/clean_events_daily.py
-python src/viz_overview.py
-python src/detect_anomalies.py
-python src/publish_tableau_table.py
+- python src/bq_smoke_test.py
+- python src/extract_events_daily.py
+- python src/clean_events_daily.py
+- python src/viz_overview.py
+- python src/detect_anomalies.py
+- python src/publish_tableau_table.py
 
 ## Visualizations (auto-saved to `reports/figures/`)
 
