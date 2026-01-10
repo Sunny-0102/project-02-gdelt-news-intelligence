@@ -22,3 +22,8 @@ We already use partition filters in Python extracts; the same principle applies 
 - Workbook: `.twb` or `.twbx`
 - Screenshots: `png` (for README / report)
 - Notes: how to refresh and what tables/views the workbook uses
+
+## Risk Monitor (V3)
+- Dashboard: Risk Monitor
+- Uses BigQuery table: `gen-lang-client-0366281238.gdelt_portfolio.country_risk_daily`
+- KPIs: Latest Risk, Latest Conflict Share, Latest Negative Share

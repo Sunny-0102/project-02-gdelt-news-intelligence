@@ -83,6 +83,10 @@ Open the workbook and refresh the data source. If the table is overwritten by th
 ## V2 — Topic Pulse (GKG Themes)
 ![Topic Pulse](tableau/screenshots/topic_pulse.png)
 
+## V3 — Risk Monitor (Risk Index + KPIs)
+![Risk Monitor](tableau/screenshots/risk_monitor.png)
+
+
 ## Setup (macOS)
 ```bash
 python3 -m venv .venv
