@@ -77,6 +77,9 @@ Open the workbook and refresh the data source. If the table is overwritten by th
 ## Tableau dashboard
 ![GDELT Global Pulse](tableau/screenshots/gdelt_global_pulse.png)
 
+## Final report
+- `reports/final_report.md`
+
 ## Setup (macOS)
 ```bash
 python3 -m venv .venv
