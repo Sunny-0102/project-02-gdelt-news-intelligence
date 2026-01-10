@@ -21,22 +21,21 @@ All BigQuery queries in this repo filter `_PARTITIONTIME` with constant timestam
 - `data/processed/` cleaned outputs (ignored by git)
 
 
-Authentication (BigQuery)
+## Authentication (BigQuery)
 
 gcloud auth login
 gcloud auth application-default login
 gcloud config set project gen-lang-client-0366281238
 gcloud auth application-default set-quota-project gen-lang-client-0366281238
 gcloud services enable bigquery.googleapis.com
-Pipeline (run in order)
 
-
+## Pipeline (run in order)
 python src/bq_smoke_test.py
 python src/extract_events_daily.py
 python src/clean_events_daily.py
 python src/viz_overview.py
-Tableau
-Tableau deliverables will be stored under tableau/ with connection/refresh notes.
+python src/detect_anomalies.py
+python src/publish_tableau_table.py
 
 ## Visualizations (auto-saved to `reports/figures/`)
 
