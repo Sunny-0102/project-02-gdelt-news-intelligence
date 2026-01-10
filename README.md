@@ -80,6 +80,9 @@ Open the workbook and refresh the data source. If the table is overwritten by th
 ## Final report
 - `reports/final_report.md`
 
+## V2 — Topic Pulse (GKG Themes)
+![Topic Pulse](tableau/screenshots/topic_pulse.png)
+
 ## Setup (macOS)
 ```bash
 python3 -m venv .venv
