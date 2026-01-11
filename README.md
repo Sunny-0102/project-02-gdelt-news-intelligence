@@ -86,6 +86,13 @@ Open the workbook and refresh the data source. If the table is overwritten by th
 ## V3 — Risk Monitor (Risk Index + KPIs)
 ![Risk Monitor](tableau/screenshots/risk_monitor.png)
 
+## V3 — Forecast Outlook (Next-day Risk)
+![Forecast Outlook](tableau/screenshots/forecast_outlook.png)
+
+What it shows:
+- Map of predicted next-day risk by country
+- Top countries by predicted risk (with delta vs latest actual)
+- Auto-filters to the latest available forecast date (no manual date selection)
 
 ## Setup (macOS)
 ```bash
