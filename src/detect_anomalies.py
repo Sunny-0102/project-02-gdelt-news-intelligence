@@ -1,17 +1,15 @@
 from pathlib import Path
 
+import matplotlib
 import numpy as np
 import pandas as pd
 
-import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
-
 
 ROOT = Path(__file__).resolve().parents[1]
 IN_PARQUET = ROOT / "data" / "processed" / "events_daily_clean.parquet"
@@ -39,7 +37,9 @@ def safe_read_clean() -> pd.DataFrame:
         return pd.read_parquet(IN_PARQUET)
     if IN_FALLBACK.exists():
         return pd.read_csv(IN_FALLBACK)
-    raise FileNotFoundError("Clean dataset not found in data/processed/. Run clean_events_daily.py first.")
+    raise FileNotFoundError(
+        "Clean dataset not found in data/processed/. Run clean_events_daily.py first."
+    )
 
 
 def main() -> None:
@@ -120,7 +120,18 @@ def main() -> None:
     top = (
         panel.sort_values("anomaly_score", ascending=True)
         .head(50)
-        .loc[:, ["date", "CountryCode", "EventCount", "AvgTone", "AvgGoldstein", "anomaly_score", "anomaly_label"]]
+        .loc[
+            :,
+            [
+                "date",
+                "CountryCode",
+                "EventCount",
+                "AvgTone",
+                "AvgGoldstein",
+                "anomaly_score",
+                "anomaly_label",
+            ],
+        ]
     )
     top_path = OUT_REPORTS / "top_50_country_day_anomalies.csv"
     top.to_csv(top_path, index=False)
@@ -146,4 +157,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

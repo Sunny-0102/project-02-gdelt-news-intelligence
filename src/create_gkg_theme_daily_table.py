@@ -1,6 +1,5 @@
 from google.cloud import bigquery
 
-
 BILLING_PROJECT = "gen-lang-client-0366281238"
 SOURCE_TABLE = "gdelt-bq.gdeltv2.gkg_partitioned"
 DEST_TABLE = f"{BILLING_PROJECT}.gdelt_portfolio.gkg_theme_daily_20251001_20260101"

@@ -1,13 +1,13 @@
 from pathlib import Path
-import numpy as np
 
 import matplotlib
+import numpy as np
+
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "data" / "processed" / "events_daily_clean.parquet"

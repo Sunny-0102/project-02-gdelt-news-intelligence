@@ -1,6 +1,5 @@
 from google.cloud import bigquery
 
-
 BILLING_PROJECT = "gen-lang-client-0366281238"
 
 # Public GDELT table we will query

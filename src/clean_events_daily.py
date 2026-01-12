@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 EXTRACT_DIR = ROOT / "data" / "extracts"
@@ -72,19 +71,21 @@ def main() -> None:
     )
 
     # Normalize codes to 2-digit strings (01..20) so joins and maps behave.
-    df["EventRootCode"] = (
-        df["EventRootCode"]
-        .astype("string")
-        .str.strip()
-        .str.zfill(2)
-    )
+    df["EventRootCode"] = df["EventRootCode"].astype("string").str.strip().str.zfill(2)
 
     # SQLDATE is YYYYMMDD; make it a real date column for Tableau and time-series work.
     df["SQLDATE"] = df["SQLDATE"].astype(str)
     df["date"] = pd.to_datetime(df["SQLDATE"], format="%Y%m%d", errors="coerce")
 
     # Make numeric columns numeric (bad rows become NaN instead of crashing later).
-    for col in ["EventCount", "AvgTone", "AvgGoldstein", "TotalMentions", "TotalArticles", "TotalSources"]:
+    for col in [
+        "EventCount",
+        "AvgTone",
+        "AvgGoldstein",
+        "TotalMentions",
+        "TotalArticles",
+        "TotalSources",
+    ]:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 

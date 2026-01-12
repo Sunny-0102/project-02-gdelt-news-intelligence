@@ -6,7 +6,6 @@ from google.cloud import bigquery
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
 
-
 PROJECT = "gen-lang-client-0366281238"
 SOURCE_TABLE = f"{PROJECT}.gdelt_portfolio.country_risk_daily"
 DEST_TABLE = "gdelt_portfolio.country_risk_forecasts_next_day"
@@ -64,9 +63,17 @@ def main() -> None:
     )
 
     feature_cols = [
-        "lag_1", "lag_2", "lag_3", "lag_7", "lag_14",
-        "roll_mean_7", "roll_std_7",
-        "total_events", "conflict_share", "negative_share", "weighted_avg_tone",
+        "lag_1",
+        "lag_2",
+        "lag_3",
+        "lag_7",
+        "lag_14",
+        "roll_mean_7",
+        "roll_std_7",
+        "total_events",
+        "conflict_share",
+        "negative_share",
+        "weighted_avg_tone",
     ]
 
     # Train only where we actually know “tomorrow” (target_next_day is present).

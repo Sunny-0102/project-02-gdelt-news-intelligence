@@ -1,20 +1,18 @@
 from pathlib import Path
 
+import matplotlib
 import numpy as np
 import pandas as pd
 
-import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-
 from google.cloud import bigquery
-from sklearn.model_selection import TimeSeriesSplit
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error
 from sklearn.inspection import permutation_importance
-
+from sklearn.metrics import mean_absolute_error
+from sklearn.model_selection import TimeSeriesSplit
 
 BILLING_PROJECT = "gen-lang-client-0366281238"
 TABLE = f"{BILLING_PROJECT}.gdelt_portfolio.country_risk_daily"
@@ -63,11 +61,9 @@ def main() -> None:
     df["date"] = pd.to_datetime(df["date"])
 
     # This picks a country with enough activity so the forecast is meaningful.
-    top_country = (
-        client.query(
-            f"SELECT CountryCode FROM `{TABLE}` GROUP BY CountryCode ORDER BY SUM(total_events) DESC LIMIT 1"
-        ).to_dataframe()["CountryCode"][0]
-    )
+    top_country = client.query(
+        f"SELECT CountryCode FROM `{TABLE}` GROUP BY CountryCode ORDER BY SUM(total_events) DESC LIMIT 1"
+    ).to_dataframe()["CountryCode"][0]
 
     one = df[df["CountryCode"] == top_country].copy()
 
@@ -78,7 +74,9 @@ def main() -> None:
     one["risk_raw"] = one["risk_raw"].fillna(0.0)
 
     one = make_features(one)
-    one = one.dropna(subset=["lag_14", "roll_mean_7", "roll_std_7", "target_next_day"]).reset_index(drop=True)
+    one = one.dropna(subset=["lag_14", "roll_mean_7", "roll_std_7", "target_next_day"]).reset_index(
+        drop=True
+    )
 
     feature_cols = ["lag_1", "lag_2", "lag_3", "lag_7", "lag_14", "roll_mean_7", "roll_std_7"]
     X = one[feature_cols].to_numpy()
@@ -118,7 +116,9 @@ def main() -> None:
 
     # This explains which features the model relied on the most.
     perm = permutation_importance(model, X[test_idx], y[test_idx], n_repeats=10, random_state=42)
-    imp = pd.DataFrame({"feature": feature_cols, "importance": perm.importances_mean}).sort_values("importance", ascending=False)
+    imp = pd.DataFrame({"feature": feature_cols, "importance": perm.importances_mean}).sort_values(
+        "importance", ascending=False
+    )
 
     report_path = REP_DIR / "risk_forecast_report.md"
     with open(report_path, "w", encoding="utf-8") as f:

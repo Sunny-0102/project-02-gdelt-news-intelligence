@@ -3,7 +3,6 @@ from pathlib import Path
 import pandas as pd
 import pandas_gbq
 
-
 BILLING_PROJECT = "gen-lang-client-0366281238"
 DESTINATION = "gdelt_portfolio.events_daily_clean"
 LOCATION = "US"

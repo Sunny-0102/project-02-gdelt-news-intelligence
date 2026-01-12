@@ -19,11 +19,9 @@ This dataset is designed to be analyzed at scale in BigQuery rather than downloa
 All BigQuery queries in this repo filter `_PARTITIONTIME` with constant timestamps so partition pruning works and query cost stays controlled.
 
 ## Setup (macOS)
-```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
 
 ## Repo structure
 - `src/` pipeline scripts
