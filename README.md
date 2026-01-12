@@ -24,7 +24,7 @@ All BigQuery queries in this repo filter `_PARTITIONTIME` with constant timestam
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-
+```
 ## Repo structure
 - `src/` pipeline scripts
 - `sql/` BigQuery SQL (rebuild tables)
