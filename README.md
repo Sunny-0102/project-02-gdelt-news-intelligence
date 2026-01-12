@@ -3,7 +3,6 @@
 ## Goal
 Build a large-scale, reproducible pipeline that pulls global news-derived event signals from GDELT in BigQuery, cleans and aggregates them, produces analysis + visualizations, and then publishes a Tableau dashboard.
 
-```markdown
 ## Docs
 - Architecture: `docs/ARCHITECTURE.md`
 - Operations runbook: `docs/OPERATIONS.md`
@@ -19,10 +18,11 @@ This dataset is designed to be analyzed at scale in BigQuery rather than downloa
 All BigQuery queries in this repo filter `_PARTITIONTIME` with constant timestamps so partition pruning works and query cost stays controlled.
 
 ## Setup (macOS)
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-
+```
 ## Repo structure
 - `src/` pipeline scripts
 - `sql/` BigQuery SQL (rebuild tables)
