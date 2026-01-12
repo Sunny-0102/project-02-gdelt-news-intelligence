@@ -94,6 +94,14 @@ What it shows:
 - Top countries by predicted risk (with delta vs latest actual)
 - Auto-filters to the latest available forecast date (no manual date selection)
 
+## Tableau Dashboards (V3)
+
+### Risk Monitor
+![Risk Monitor](tableau/screenshots/risk_monitor_2.png)
+
+### Forecast Outlook
+![Forecast Outlook](tableau/screenshots/forecast_outlook.png)
+
 ## Setup (macOS)
 ```bash
 python3 -m venv .venv
