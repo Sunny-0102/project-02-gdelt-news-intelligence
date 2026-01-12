@@ -4,16 +4,14 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-IN_PATH = ROOT / "data" / "extracts" / "events_daily_20251001_20260101.csv"
 
-OUT_DIR = ROOT / "data" / "processed"
-OUT_DIR.mkdir(parents=True, exist_ok=True)
-
-REPORT_DIR = ROOT / "reports"
-REPORT_DIR.mkdir(parents=True, exist_ok=True)
+EXTRACT_DIR = ROOT / "data" / "extracts"
+OUT_PARQUET = ROOT / "data" / "processed" / "events_daily_clean.parquet"
+REPORT_PATH = ROOT / "reports" / "data_quality_events_daily.md"
 
 
-ROOT_CODE_LABEL = {
+# Simple CAMEO root labels so the dataset is self-explanatory in Tableau.
+ROOT_LABEL = {
     "01": "Make Public Statement",
     "02": "Appeal",
     "03": "Express Intent to Cooperate",
@@ -37,84 +35,107 @@ ROOT_CODE_LABEL = {
 }
 
 
-def tone_bucket(x: float) -> str:
-    if pd.isna(x):
+def latest_extract_file() -> Path:
+    # Grab the newest extract so you never clean the wrong file by accident.
+    files = sorted(EXTRACT_DIR.glob("events_daily_*.csv"))
+    if not files:
+        raise FileNotFoundError(f"No events_daily_*.csv found in {EXTRACT_DIR}")
+    return max(files, key=lambda p: p.stat().st_mtime)
+
+
+def tone_bucket(avg_tone: float) -> str:
+    # Keep buckets stable and easy to explain to non-technical viewers.
+    if pd.isna(avg_tone):
         return "unknown"
-    if x <= -2:
+    if avg_tone <= -2:
         return "negative"
-    if x >= 2:
+    if avg_tone >= 2:
         return "positive"
     return "neutral"
 
 
 def main() -> None:
+    OUT_PARQUET.parent.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    in_path = latest_extract_file()
+    print(f"Cleaning extract: {in_path}")
+
+    # Force types so pandas doesn’t “guess” differently on different runs.
     df = pd.read_csv(
-    IN_PATH,
-    dtype={"SQLDATE": "string", "CountryCode": "string", "EventRootCode": "string"},
-    low_memory=False,
+        in_path,
+        dtype={
+            "CountryCode": "string",
+            "EventRootCode": "string",
+        },
+        low_memory=False,
     )
 
+    # Normalize codes to 2-digit strings (01..20) so joins and maps behave.
+    df["EventRootCode"] = (
+        df["EventRootCode"]
+        .astype("string")
+        .str.strip()
+        .str.zfill(2)
+    )
 
+    # SQLDATE is YYYYMMDD; make it a real date column for Tableau and time-series work.
     df["SQLDATE"] = df["SQLDATE"].astype(str)
     df["date"] = pd.to_datetime(df["SQLDATE"], format="%Y%m%d", errors="coerce")
 
-    df["CountryCode"] = df["CountryCode"].astype(str).str.strip()
-    df = df[df["CountryCode"].str.len() == 2]
+    # Make numeric columns numeric (bad rows become NaN instead of crashing later).
+    for col in ["EventCount", "AvgTone", "AvgGoldstein", "TotalMentions", "TotalArticles", "TotalSources"]:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    df["EventRootCode"] = df["EventRootCode"].astype(str).str.zfill(2)
-    df = df[df["EventRootCode"].isin(ROOT_CODE_LABEL.keys())]
-
-    df["EventRootLabel"] = df["EventRootCode"].map(ROOT_CODE_LABEL)
+    # Add readable labels and simple sentiment buckets.
+    df["EventRootLabel"] = df["EventRootCode"].map(ROOT_LABEL).fillna("Unknown")
     df["ToneBucket"] = df["AvgTone"].apply(tone_bucket)
 
-    df["EventCount"] = pd.to_numeric(df["EventCount"], errors="coerce").fillna(0).astype(int)
-    df["TotalMentions"] = pd.to_numeric(df["TotalMentions"], errors="coerce").fillna(0).astype(int)
-    df["TotalArticles"] = pd.to_numeric(df["TotalArticles"], errors="coerce").fillna(0).astype(int)
-    df["TotalSources"] = pd.to_numeric(df["TotalSources"], errors="coerce").fillna(0).astype(int)
+    # Keep a clean, consistent column order for downstream scripts and Tableau.
+    keep_cols = [
+        "SQLDATE",
+        "CountryCode",
+        "EventRootCode",
+        "EventCount",
+        "AvgTone",
+        "AvgGoldstein",
+        "TotalMentions",
+        "TotalArticles",
+        "TotalSources",
+        "date",
+        "EventRootLabel",
+        "ToneBucket",
+    ]
+    df = df[keep_cols]
 
-    df = df.dropna(subset=["date"])
-    df = df.sort_values(["date", "CountryCode", "EventRootCode"]).reset_index(drop=True)
+    df.to_parquet(OUT_PARQUET, index=False)
+    print(f"Saved cleaned dataset to: {OUT_PARQUET}")
 
-    out_parquet = OUT_DIR / "events_daily_clean.parquet"
-    out_csv_gz = OUT_DIR / "events_daily_clean.csv.gz"
+    # Small report so the repo proves data coverage + quality at a glance.
+    with open(REPORT_PATH, "w", encoding="utf-8") as f:
+        f.write("# Events Daily — Data Quality Report\n\n")
+        f.write(f"- Source extract: `{in_path.name}`\n")
+        f.write(f"- Rows: {len(df):,}\n")
+        f.write(f"- Date range: {df['date'].min().date()} → {df['date'].max().date()}\n\n")
 
-    try:
-        df.to_parquet(out_parquet, index=False)
-        saved_path = out_parquet
-    except Exception:
-        df.to_csv(out_csv_gz, index=False, compression="gzip")
-        saved_path = out_csv_gz
+        f.write("## Missing values (by column)\n\n")
+        f.write(df.isna().sum().to_frame("missing").to_markdown())
+        f.write("\n\n")
 
-    report_path = REPORT_DIR / "data_quality_events_daily.md"
-
-    date_min = df["date"].min()
-    date_max = df["date"].max()
-    n_countries = df["CountryCode"].nunique()
-    n_root_codes = df["EventRootCode"].nunique()
-    n_rows = len(df)
-
-    root_counts = (
-        df.groupby(["EventRootCode", "EventRootLabel"])["EventCount"]
-        .sum()
-        .sort_values(ascending=False)
-        .head(10)
-    )
-
-    with open(report_path, "w", encoding="utf-8") as f:
-        f.write("# Data Quality Report — events_daily_clean\n\n")
-        f.write(f"- Input: `{IN_PATH}`\n")
-        f.write(f"- Output: `{saved_path}`\n\n")
-        f.write(f"- Rows: {n_rows}\n")
-        f.write(f"- Date range: {date_min.date()} to {date_max.date()}\n")
-        f.write(f"- Countries: {n_countries}\n")
-        f.write(f"- Root codes present: {n_root_codes} / 20\n\n")
-        f.write("## Top 10 root codes by total event count\n\n")
-        f.write(root_counts.to_frame("TotalEventCount").to_markdown())
+        f.write("## Top EventRootCode by total EventCount\n\n")
+        top_roots = (
+            df.groupby(["EventRootCode", "EventRootLabel"], dropna=False)["EventCount"]
+            .sum()
+            .sort_values(ascending=False)
+            .head(10)
+            .reset_index()
+        )
+        f.write(top_roots.to_markdown(index=False))
         f.write("\n")
 
-    print(f"Saved cleaned dataset to: {saved_path}")
-    print(f"Saved report to: {report_path}")
-    print(df.head())
+    print(f"Saved report to: {REPORT_PATH}")
+    print(df.head(5).to_string(index=False))
 
 
 if __name__ == "__main__":

@@ -3,6 +3,11 @@
 ## Goal
 Build a large-scale, reproducible pipeline that pulls global news-derived event signals from GDELT in BigQuery, cleans and aggregates them, produces analysis + visualizations, and then publishes a Tableau dashboard.
 
+```markdown
+## Docs
+- Architecture: `docs/ARCHITECTURE.md`
+- Operations runbook: `docs/OPERATIONS.md`
+
 ## Data source
 - BigQuery public project: `gdelt-bq`
 - Dataset: `gdeltv2`
@@ -13,13 +18,21 @@ This dataset is designed to be analyzed at scale in BigQuery rather than downloa
 ## Cost control rule
 All BigQuery queries in this repo filter `_PARTITIONTIME` with constant timestamps so partition pruning works and query cost stays controlled.
 
-## Repo structure
-- `src/` scripts (extract, clean, visualize)
-- `reports/figures/` saved PNG charts
-- `reports/` markdown reports
-- `data/extracts/` local BigQuery extracts (ignored by git)
-- `data/processed/` cleaned outputs (ignored by git)
+## Setup (macOS)
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
+## Repo structure
+- `src/` pipeline scripts
+- `sql/` BigQuery SQL (rebuild tables)
+- `docs/` architecture + operations runbook
+- `tableau/` workbook + screenshots
+- `reports/` QA logs + anomaly outputs
+- `data/extracts/` local extracts (gitignored)
+- `data/processed/` processed files (gitignored)
 
 ## Authentication (BigQuery)
 
@@ -30,12 +43,19 @@ All BigQuery queries in this repo filter `_PARTITIONTIME` with constant timestam
 - gcloud services enable bigquery.googleapis.com
 
 ## Pipeline (run in order)
+
+### V1 — Events table (Tableau base)
 - python src/bq_smoke_test.py
 - python src/extract_events_daily.py
 - python src/clean_events_daily.py
-- python src/viz_overview.py
-- python src/detect_anomalies.py
 - python src/publish_tableau_table.py
+
+### V2 — Themes (optional)
+- python src/create_gkg_theme_daily_table.py
+
+### V3 — Risk + Forecast
+- python src/create_country_risk_daily_table.py
+- python src/publish_risk_forecasts.py
 
 ## Visualizations (auto-saved to `reports/figures/`)
 
@@ -102,8 +122,3 @@ What it shows:
 ### Forecast Outlook
 ![Forecast Outlook](tableau/screenshots/forecast_outlook.png)
 
-## Setup (macOS)
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt

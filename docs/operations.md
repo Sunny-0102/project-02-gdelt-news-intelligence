@@ -39,11 +39,12 @@ This file is the “how to run and keep it working” guide for the repo: refres
 ## 3) One-time setup (only do once per machine)
 
 ### 3.1 Python environment
+```bash
 From repo root:
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-
+```
 ### 3.2 Google auth (Application Default Credentials)
 
 - gcloud auth login
@@ -52,7 +53,7 @@ pip install -r requirements.txt
 - gcloud auth application-default set-quota-project gen-lang-client-0366281238
 
 ### 3.3 Create BigQuery dataset (only once)
-
+```bash
 python - << 'PY'
 from google.cloud import bigquery
 client = bigquery.Client(project="gen-lang-client-0366281238")
@@ -62,44 +63,47 @@ dataset.location = "US"
 client.create_dataset(dataset, exists_ok=True)
 print("Dataset ready:", dataset_id)
 PY
-
+```
 ---
 
 ## 4) Daily refresh (end-to-end)
 ### Run these from repo root (with .venv active):
-
-- python src/extract_events_daily.py
-- python src/clean_events_daily.py
-- python src/publish_tableau_table.py
-- python src/create_country_risk_daily_table.py
-- python src/publish_risk_forecasts.py
-
+```bash
+python src/extract_events_daily.py
+python src/clean_events_daily.py
+python src/publish_tableau_table.py
+python src/create_country_risk_daily_table.py
+python src/publish_risk_forecasts.py
+```
 ### What each step does
 
 - extract_events_daily.py
-Pulls daily aggregates from gdelt-bq.gdeltv2.events_partitioned into data/extracts/events_daily_*.csv.
+    - Pulls daily aggregates from gdelt-bq.gdeltv2.events_partitioned into data/extracts/events_daily_*.csv.
 - clean_events_daily.py
-Standardizes types, adds labels/buckets, writes data/processed/events_daily_clean.parquet, and writes a QA report to reports/data_quality_events_daily.md.
+    - Standardizes types, adds labels/buckets, writes data/processed/events_daily_clean.parquet, and writes a QA report to reports/data_quality_events_daily.md.
 - publish_tableau_table.py
-Pushes the clean dataset into BigQuery as gdelt_portfolio.events_daily_clean for Tableau.
+    - Pushes the clean dataset into BigQuery as gdelt_portfolio.events_daily_clean for Tableau.
 - create_country_risk_daily_table.py
-Builds gdelt_portfolio.country_risk_daily (daily features + derived risk score).
+    - Builds gdelt_portfolio.country_risk_daily (daily features + derived risk score).
 - publish_risk_forecasts.py
-Trains a next-day model per country and publishes a “latest snapshot” table to gdelt_portfolio.country_risk_forecasts_next_day.
+    - Trains a next-day model per country and publishes a “latest snapshot” table to gdelt_portfolio.country_risk_forecasts_next_day.
 
 ---
 
 ## 5) Validation checks (do after every refresh)
 
 ### 5.1 Confirm extract is current
+```bash
 python - << 'PY'
 import pandas as pd
 df = pd.read_csv("data/extracts/events_daily_20251001_20260111.csv")
 print("extract max(SQLDATE):", df["SQLDATE"].max())
 print("extract min(SQLDATE):", df["SQLDATE"].min())
 PY
+```
 
 ### 5.2 Confirm BigQuery clean table is current
+```bash
 python - << 'PY'
 from google.cloud import bigquery
 c = bigquery.Client(project="gen-lang-client-0366281238")
@@ -112,6 +116,7 @@ print("events_daily_clean max(date):", list(c.query(q1).result())[0]["max_date"]
 print("country_risk_daily max(date):", list(c.query(q2).result())[0]["max_date"])
 print("country_risk_forecasts_next_day max(forecast_date):", list(c.query(q3).result())[0]["max_forecast_date"])
 PY
+```
 
 ### Expected logic
 - events_daily_clean max(date) should match the most recent day you extracted/cleaned.
@@ -124,7 +129,7 @@ PY
 
 ### 6.1 Data sources in Tableau (BigQuery → dataset → tables)
 
-Use dataset: gdelt_portfolio
+**Use dataset: gdelt_portfolio**
 Add these tables to the data model:
 
 - country_risk_daily
@@ -135,7 +140,7 @@ Add these tables to the data model:
 You already applied this, keep it documented here:
 - CountryCode (daily) = Country Code (forecast)
 - Date (daily) = As Of Date (forecast)
-This makes the forecast “dot” sit on a real day (the last day we actually observed), while the dot value is the next-day prediction.
+    - This makes the forecast “dot” sit on a real day (the last day we actually observed), while the dot value is the next-day prediction.
 
 ### 6.3 Filters you should standardize in Tableau
 
@@ -150,7 +155,7 @@ This makes the forecast “dot” sit on a real day (the last day we actually ob
 
 ### Problem A: country_risk_forecasts_next_day doesn’t show in Tableau
 1. Confirm it exists in BigQuery:
-
+```bash
 python - << 'PY'
 from google.cloud import bigquery
 c = bigquery.Client(project="gen-lang-client-0366281238")
@@ -160,7 +165,7 @@ FROM `gen-lang-client-0366281238.gdelt_portfolio.country_risk_forecasts_next_day
 """
 print(list(c.query(q).result())[0]["row_count"])
 PY
-
+```
 
 2. In Tableau Data Source page:
     - Click the refresh icon near the connection
@@ -232,12 +237,12 @@ Fix:
 ### 8.1 Always commit
 - README.md (overview + architecture + how to run)
 - reports/data_quality_events_daily.md
-- reports/submissions/ or reports/figures/ images
+- reports/submissions/ or eports/figures/ images
 
 ### 8.2 Tableau screenshots
 Save and commit:
-- reports/figures/risk_monitor.png
-- reports/figures/risk_monitor_2.png (your updated version)
+- tableau/screenshots/risk_monitor.png
+- tableau/screenshots/risk_monitor_2.png (your updated version)
 
 ### 8.3 Tableau workbook assets
 Store Tableau files under:
@@ -254,21 +259,22 @@ Use tags so recruiters can see milestones:
 - v3-risk-monitor-forecast
 
 Template:
-
+```bash
 git status
 git add -A
 git commit -m "V3: Risk Monitor + next-day risk forecasts"
 git tag v3-risk-monitor-forecast
 git push
 git push --tags
-
+```
 ---
 
 ## 10) Common dependency errors
 
 Missing optional dependency 'tabulate'
+```bash
 pip install tabulate
-
+```
 1. Pandas dtype warnings on CSV reads
 
 Not fatal, but if you want to silence it:
@@ -282,11 +288,3 @@ Not fatal, but if you want to silence it:
 - Never commit data/ raw extracts or processed datasets
 - Never commit any credential files under ~/.config/gcloud/
 - Commit reports + screenshots + code only
-
-
-:contentReference[oaicite:0]{index=0}
-::contentReference[oaicite:1]{index=1}
-
----
-
-```bash

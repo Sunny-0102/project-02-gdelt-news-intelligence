@@ -1,24 +1,37 @@
-# Data Quality Report — events_daily_clean
+# Events Daily — Data Quality Report
 
-- Input: `/Users/sunny/Desktop/Projects/project-02-gdelt-news-intelligence/data/extracts/events_daily_20251001_20260101.csv`
-- Output: `/Users/sunny/Desktop/Projects/project-02-gdelt-news-intelligence/data/processed/events_daily_clean.parquet`
+- Source extract: `events_daily_20251001_20260110.csv`
+- Rows: 306,765
+- Date range: 2025-10-01 → 2026-01-09
 
-- Rows: 280715
-- Date range: 2025-10-01 to 2025-12-31
-- Countries: 254
-- Root codes present: 20 / 20
+## Missing values (by column)
 
-## Top 10 root codes by total event count
+|                |   missing |
+|:---------------|----------:|
+| SQLDATE        |         0 |
+| CountryCode    |         0 |
+| EventRootCode  |         0 |
+| EventCount     |         0 |
+| AvgTone        |         0 |
+| AvgGoldstein   |         2 |
+| TotalMentions  |         0 |
+| TotalArticles  |         0 |
+| TotalSources   |         0 |
+| date           |         0 |
+| EventRootLabel |         0 |
+| ToneBucket     |         0 |
 
-|                                            |   TotalEventCount |
-|:-------------------------------------------|------------------:|
-| ('04', 'Consult')                          |       3.78236e+06 |
-| ('01', 'Make Public Statement')            |       1.96557e+06 |
-| ('05', 'Engage in Diplomatic Cooperation') |       1.44907e+06 |
-| ('02', 'Appeal')                           |       1.09759e+06 |
-| ('03', 'Express Intent to Cooperate')      |  964921           |
-| ('11', 'Disapprove')                       |  936544           |
-| ('19', 'Fight')                            |  901167           |
-| ('17', 'Coerce')                           |  648017           |
-| ('08', 'Yield')                            |  577959           |
-| ('07', 'Provide Aid')                      |  543666           |
+## Top EventRootCode by total EventCount
+
+|   EventRootCode | EventRootLabel                   |   EventCount |
+|----------------:|:---------------------------------|-------------:|
+|              04 | Consult                          |      4077803 |
+|              01 | Make Public Statement            |      2153547 |
+|              05 | Engage in Diplomatic Cooperation |      1570701 |
+|              02 | Appeal                           |      1197797 |
+|              03 | Express Intent to Cooperate      |      1043752 |
+|              11 | Disapprove                       |      1036640 |
+|              19 | Fight                            |       992683 |
+|              17 | Coerce                           |       707399 |
+|              08 | Yield                            |       627731 |
+|              07 | Provide Aid                      |       585416 |

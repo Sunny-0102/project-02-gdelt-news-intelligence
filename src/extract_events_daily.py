@@ -12,7 +12,7 @@ TABLE = "gdelt-bq.gdeltv2.events_partitioned"
 
 
 START = "2025-10-01"
-END = "2026-01-01"
+END = "2026-01-10"
 
 
 def main() -> None:
